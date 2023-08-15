@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Button, FlatList, Input, Text, TextArea, View, Flex, Box, HStack, Modal } from 'native-base'
+import { Button, FlatList, Input, Text, TextArea, View, Flex, Box, HStack, AlertDialog, useToast, Spinner, Heading } from 'native-base'
 import { AreaEditarScreenRouteProp, MainStackParamList } from '../../types/navigation'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
 import { Alert, StyleSheet, Switch, TouchableOpacity } from 'react-native';
+import ResponsiveHeader from '../../components/ResponsiveHeader';
+import Breadcrumb from '../../components/Breadcrumb';
 
 interface DataItem {
   areaId: number;
@@ -19,18 +21,28 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
   const [data, setData] = useState<DataItem[]>([]);
   const route = useRoute<AreaEditarScreenRouteProp>();
   const [editedData, setEditedData] = useState<DataItem | null>(null);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const cancelRef = React.useRef(null);
+  const onClose = () => setIsOpen(false);
+  const toast = useToast();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getAreas();
   }, []);
 
   const getAreas = () => {
+    setLoading(true);
     axios.get('http://192.168.1.70:3000/areas/' + route.params.areaId)
+    // axios.get('http://159.97.121.147:3000/areas/' + route.params.areaId)
       .then((response) => {
         setData(response.data.areas);
       })
       .catch((error) => {
       })
+      .finally(() => {
+        setLoading(false);
+      });
   }
 
   const toggleSwitch = () => {
@@ -43,8 +55,9 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
 
   const deleteAreas = (areaId: number) => {
     axios.delete('http://192.168.1.70:3000/areas/' + route.params.areaId)
+    // axios.delete('http://159.97.121.147:3000/areas/' + route.params.areaId)
       .then(response => {
-        Alert.alert('Eliminado correctamente')
+        navigation.goBack();
         navigation.goBack();
       })
       .catch(error => {
@@ -57,6 +70,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
 
   const updateAreas = (item: DataItem) => {
     axios.patch('http://192.168.1.70:3000/areas/' + route.params.areaId, {
+      // axios.patch('http:/159.97.121.147/:3000/areas/' + route.params.areaId, {
       main: item.main,
       second: item.second,
       thirth: item.thirth,
@@ -64,7 +78,15 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
       active: item.active,
     })
       .then(response => {
-        Alert.alert('Actualizado correctamente')
+        toast.show({
+          title: "Exito al actualizar",
+          variant: "solid",
+          description: "Los datos se han actualizado",
+          placement: 'bottom',
+          backgroundColor: '#193250',
+          duration: 1500,
+        })
+        getAreas();
         navigation.goBack();
       })
       .catch(error => {
@@ -75,21 +97,24 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
       });
   }
 
+  const breadcrumbItems = [
+    { label: 'Áreas', onPress: () => navigation.goBack() },
+    { label: 'Visualizar áreas', onPress: () => navigation.goBack() },
+    { label: 'Editar áreas', onPress: () => getAreas() },
+
+  ];
+
   const renderDataItem = ({ item }: { item: DataItem }) => (
     <View flex={1}>
+      <ResponsiveHeader
+        navigation={navigation}
+        title="Editar área"
+        rightContent={<Text></Text>}
+      />
       {data.length > 0 && (
         <Flex direction="column" m={5}>
-          <Text fontSize={'md'} fontWeight={'light'} mt={5}>ID del área</Text>
-          <Input
-            mt={2}
-            value={item.areaId.toString()}
-            size={'lg'}
-            variant={'outline'}
-            placeholder="areaId"
-            fontWeight={'light'}
-            editable={false}
-          />
-          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Principal</Text>
+          <Breadcrumb items={breadcrumbItems} />
+          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Editar área principal:</Text>
           <Input
             mt={2}
             value={editedData ? editedData.main : item.main}
@@ -101,7 +126,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
               setEditedData({ ...item, main: text });
             }}
           />
-          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Secundario</Text>
+          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Editar área secundaria:</Text>
           <Input
             mt={2}
             value={editedData ? editedData.second : item.second}
@@ -113,7 +138,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
               setEditedData({ ...item, second: text });
             }}
           />
-          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Terciario</Text>
+          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Editar área terciaria:</Text>
           <Input
             mt={2}
             value={editedData ? editedData.thirth : item.thirth}
@@ -125,15 +150,16 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
               setEditedData({ ...item, thirth: text });
             }}
           />
-          <Text fontSize={'md'} fontWeight={'light'} mt={'5'}>  Descripción</Text>
+          <Text fontSize={'md'} fontWeight={'light'} mt={'5'}> Editar Descripción:</Text>
           <TextArea mt={2}
-                    size={'lg'} 
-                    value={editedData ? editedData.description : item.description} 
-                    placeholder='Descripción' 
-                    onChangeText={text => {
-                      setEditedData({ ...item, description: text });
-                    }}
-                    />
+            size={'lg'}
+            value={editedData ? editedData.description : item.description}
+            placeholder='Descripción'
+            onChangeText={text => {
+              setEditedData({ ...item, description: text });
+            }}
+            autoCompleteType={undefined} />
+          <Text mt={4} fontSize={'md'} fontWeight={'light'}>Cambiar estado del área:</Text>
           <HStack space={3} justifyContent='flex-start'>
             <Box mt={5} ml={-4} maxH={'10'} maxW={'60'} w={'60'} justifyContent={'center'}>
               <Switch
@@ -148,14 +174,30 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
               <Text mt={'2'} size={'lg'} fontWeight={'light'}>{data[0].active ? 'Activado' : 'Inactivo'}</Text>
             </Box>
           </HStack>
-          <HStack space={5} justifyContent='center'>
-            <TouchableOpacity
-              style={styles.fabLocationEliminar}
-              onPress={() => deleteAreas(item.areaId)}>
-              <View style={styles.fabEliminar}>
-                <Text style={styles.fabTxt}>Eliminar</Text>
-              </View>
-            </TouchableOpacity>
+          <HStack mt={10} space={5} justifyContent='center'>
+            <Button borderRadius={10} w={120} h={60} colorScheme="danger" onPress={() => setIsOpen(!isOpen)}>
+              Eliminar
+            </Button>
+            <AlertDialog leastDestructiveRef={cancelRef} isOpen={isOpen} onClose={onClose}>
+              <AlertDialog.Content>
+                <AlertDialog.CloseButton />
+                <AlertDialog.Header>Eliminar Área</AlertDialog.Header>
+                <AlertDialog.Body>
+                  ¿Estas seguro de eliminar esta área?
+                  Esta acción no se puede revertir.
+                </AlertDialog.Body>
+                <AlertDialog.Footer>
+                  <Button.Group space={2}>
+                    <Button variant="unstyled" colorScheme="coolGray" onPress={onClose} ref={cancelRef}>
+                      Cancelar
+                    </Button>
+                    <Button colorScheme="danger" onPress={() => deleteAreas(item.areaId)}>
+                      Aceptar
+                    </Button>
+                  </Button.Group>
+                </AlertDialog.Footer>
+              </AlertDialog.Content>
+            </AlertDialog>
             <TouchableOpacity
               style={styles.fabLocation}
               onPress={() => updateAreas(editedData || item)}>
@@ -164,19 +206,28 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
               </View>
             </TouchableOpacity>
           </HStack>
+
         </Flex>
       )}
-
     </View>
-
   );
+
   return (
     <View flex={1}>
-      <FlatList
-        data={data}
-        renderItem={renderDataItem}
-        keyExtractor={(item) => item.areaId.toString()}
-      />
+      {loading ? (
+        <HStack space={2} justifyContent="center" alignSelf={'center'} top={300}>
+          <Spinner accessibilityLabel="Loading posts"/>
+          <Heading color="primary.500" fontSize="md">
+            Loading...
+          </Heading>
+        </HStack>
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={renderDataItem}
+          keyExtractor={(item) => item.areaId.toString()}
+        />
+      )}
     </View>
   )
 }
@@ -196,19 +247,7 @@ const styles = StyleSheet.create({
     fontWeight: '200'
   },
   fabLocation: {
-    marginTop: 50,
-    alignSelf: 'center'
-  },
-  fabLocationEliminar: {
-    marginTop: 50,
-    alignSelf: 'center'
-  },
-  fabEliminar: {
-    backgroundColor: '#eb3d34',
-    width: 120,
-    height: 60,
-    borderRadius: 10,
-    justifyContent: 'center'
+    padding: 1
   },
 })
 

@@ -1,9 +1,11 @@
-import { Alert, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native'
+import { StyleSheet, TouchableOpacity, RefreshControl } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Box, CheckIcon, FlatList, Flex, Input, Select, Text, View } from 'native-base'
 import axios from 'axios';
-import { MainStackParamList } from '../../types/navigation';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { MainStackParamList } from '../../types/navigation';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 
 interface DataItem {
     areaId: number;
@@ -17,9 +19,9 @@ const Area = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
 
     const [data, setData] = useState<DataItem[]>([]);
     const [searchText, setSearchText] = useState('');
-    const [activeOnly, setActiveOnly] = useState(false);
     const [active, setActive] = React.useState("");
     const [refreshing, setRefreshing] = useState(false);
+    const [error, setError] = useState(false);
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -34,10 +36,9 @@ const Area = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
     const renderRow = ({ item }: { item: DataItem }) => (
         <TouchableOpacity onPress={() => verArea(item.areaId)}>
             <View style={styles.row}>
-                <Text style={styles.cell}>{item.areaId}</Text>
-                <Text style={styles.cell}>{item.main}</Text>
-                {/* <Text style={styles.cell}>{item.second}</Text> */}
-                <Text style={styles.cell}>{item.active ? 'Activo' : 'Inactivo'}</Text>
+                <Text style={[styles.cell, styles.idCell]}>{item.areaId}</Text>
+                <Text style={[styles.cell, styles.mainCell]}>{[item.main, item.second, item.thirth].join(" / ")}</Text>
+                <Text style={[styles.cell, styles.stateCell]}>{item.active ? 'Activo' : 'Inactivo'}</Text>
             </View>
         </TouchableOpacity>
     );
@@ -49,10 +50,13 @@ const Area = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
 
     const getAreas = () => {
         axios.get('http://192.168.1.70:3000/areas')
+        // axios.get('http://159.97.121.147:3000/areas/')
             .then((response) => {
                 setData(response.data.areas);
+                setError(false);
             })
             .catch((error) => {
+                setError(true);
             })
     }
 
@@ -62,49 +66,61 @@ const Area = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
 
     return (
         <View flex={1} >
-            <Input size={'lg'} 
-                   variant={'outline'} 
-                   placeholder='Buscar por principal' 
-                   m={5}
-                   fontWeight={'light'} 
-                   value={searchText} 
-                   onChangeText={text => setSearchText(text)} />
-            <Box maxW={250}>
-                <Select size={'lg'}
-                    m={5}
-                    fontWeight={'light'} 
-                    selectedValue={active}
-                    minWidth="200"
-                    accessibilityLabel="Choose Active"
-                    placeholder="Activo"
-                    _selectedItem={{
-                        bg: "teal.600",
-                        endIcon: <CheckIcon size="5" />
-                    }} mt={1} onValueChange={itemValue => setActive(itemValue)}>
-                    <Select.Item label="Buscar por estado" value='' />
-                    <Select.Item label="Activo" value="true" />
-                    <Select.Item label="Inactivo" value="false" />
-                </Select>
-            </Box>
+            <Flex direction='column' m={5}>
+                <Text mb={2} fontWeight={300}>Buscar por principal*</Text>
+                <Input size={'lg'}
+                    variant={'outline'}
+                    placeholder='Ej. "Coordinación"'
+                    fontWeight={'light'}
+                    value={searchText}
+                    onChangeText={text => setSearchText(text)} />
+                <Text mt={2} mb={2} fontWeight={300}>Buscar por estado*</Text>
+                <Box>
+                    <Select size={'lg'}
+                        fontWeight={'light'}
+                        selectedValue={active}
+                        minWidth="200"
+                        accessibilityLabel="Choose Active"
+                        placeholder="Activo"
+                        _selectedItem={{
+                            bg: "teal.600",
+                            endIcon: <CheckIcon size="5" />
+                        }} mt={1} onValueChange={itemValue => setActive(itemValue)}>
+                        <Select.Item label="Seleccionar" value='' />
+                        <Select.Item label="Activo" value="true" />
+                        <Select.Item label="Inactivo" value="false" />
+                    </Select>
+                </Box>
+            </Flex>
             <View style={styles.headerRow}>
-                <Text style={styles.headerCell}>Id</Text>
-                <Text style={styles.headerCell}>Principal</Text>
-                {/* <Text style={styles.headerCell}>Secundaria</Text> */}
-                <Text style={styles.headerCell}>Estado</Text>
+                <Text style={[styles.headerCell, styles.idCell]}>Id</Text>
+                <Text style={[styles.headerCell, styles.mainCell]}>Áreas</Text>
+                <Text style={[styles.headerCell, styles.stateCell]}>Estado</Text>
             </View>
-            <FlatList
-                data={filteredData}
-                renderItem={renderRow}
-                keyExtractor={(item) => item.areaId.toString()}
-                refreshControl={ // Agregar esta línea
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-            />
+            {error ? (
+                <View style={styles.noDataContainer}>
+                    <Text style={styles.noDataText}>No hay conexión a internet.</Text>
+                    <Feather name='wifi-off' size={28} color={'black'} style={styles.noDataIcon} />
+                </View>
+            ) : data.length > 0 ? (
+                <FlatList
+                    data={filteredData}
+                    renderItem={renderRow}
+                    keyExtractor={(item) => item.areaId.toString()}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                />
+            ) : (
+                <View>
+                    <Text style={styles.noDataText}>No hay datos disponibles, {'\n'}
+                    </Text>
+                    <Feather name='frown' size={28} color={'black'} style={styles.noDataIcon} />
+                </View>
+            )}
             <TouchableOpacity
                 style={styles.fabLocation}
                 onPress={() => navigation.navigate('AreaAgregar')}>
                 <View style={styles.fab}>
-                    <Text style={styles.fabTxt}>Agregar</Text>
+                    <AntDesign name='plus' size={28} color={'white'} style={styles.fabTxt} />
                 </View>
             </TouchableOpacity>
         </View>
@@ -129,31 +145,54 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        marginBottom: 20,
+        marginBottom: 10,
     },
     cell: {
         flex: 1,
         color: 'black',
-        textAlign: 'center',
         fontSize: 18,
-        fontWeight: '300'
+        fontWeight: '300',
+        marginBottom: 10,
+    },
+    idCell: {
+        flex: 0.3,
+        textAlign: 'center'
+    },
+    mainCell: {
+
+    },
+    stateCell: {
+        flex: 0.4,
+        textAlign: 'center'
     },
     fab: {
         backgroundColor: '#193250',
-        width: 120,
+        width: 80,
         height: 80,
-        borderRadius: 20,
+        borderRadius: 100,
         justifyContent: 'center'
     },
     fabTxt: {
-        color: 'white',
         alignSelf: 'center',
-        fontSize: 20,
-        fontWeight: '200'
     },
     fabLocation: {
         position: 'absolute',
         bottom: 40,
-        right: 60
-    }
+        right: 30
+    },
+    noDataContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    noDataText: {
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 18,
+        fontWeight: '300',
+    },
+    noDataIcon: {
+        marginTop: 10,
+        alignSelf: 'center',
+    },
 })

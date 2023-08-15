@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import axios from 'axios';
 import { Alert, StyleSheet, Switch, TouchableOpacity } from 'react-native';
-import { Flex, HStack, Input, Text, TextArea, View, Box } from 'native-base';
+import { Flex, HStack, Input, Text, TextArea, View, Box, StatusBar, IconButton, Center } from 'native-base';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../types/navigation';
+import ResponsiveHeader from '../../components/ResponsiveHeader';
 
 interface PostData {
   main: string;
@@ -35,6 +36,7 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
 
     try {
       const response = await axios.post('http://192.168.1.70:3000/areas', postData, {
+        // const response = await axios.post('http://159.97.121.147:3000/areas', postData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -62,42 +64,54 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
 
   return (
     <View flex={1}>
+      <ResponsiveHeader
+        navigation={navigation}
+        title="Agregar áreas"
+        rightContent={<Text>Actualizar</Text>}
+      />
       <Flex direction='column' m={5}>
+        <Text mb={2} fontWeight={300}>Introduce el área principal*</Text>
         <Input
-          mt={5}
           size={'lg'}
           fontWeight={'light'}
           variant={'outline'}
-          placeholder='Introduce el área principal'
+          placeholder='Ej. "Coordinación"'
           value={main}
           onChangeText={setMain}
         />
+        <Text mt={4} mb={2} fontWeight={300}>Introduce el área secundaria</Text>
         <Input
-          mt={5}
           size={'lg'}
           fontWeight={'light'}
           variant={'outline'}
-          placeholder='Introduce el área secundaria'
+          placeholder='Ej. "Administración"'
           value={second}
           onChangeText={setSecond}
         />
+        <Text mt={4} mb={2} fontWeight={300}>Introduce el área Terciaria</Text>
         <Input
-          mt={5}
           size={'lg'}
           fontWeight={'light'}
           variant={'outline'}
-          placeholder='Introduce el área Terciaria'
+          placeholder='Ej. ""'
           value={thirth}
           onChangeText={setThirth}
         />
+        <Text mt={4}
+          mb={2}
+          fontWeight={300}>
+          Descripción del área
+        </Text>
         <TextArea
-          mt={5}
           size={'lg'}
           fontWeight={'light'}
-          placeholder='Descripción del área'
+          placeholder='Ej. "Breve descripción del área asignada"'
           value={description}
           onChangeText={setDescription}
+          autoCompleteType={undefined}
         />
+        <Text mt={4} mb={1}
+          fontWeight={300}>Estado del área</Text>
         <HStack space={3} justifyContent='flex-start'>
           <Box mt={5} ml={-4} maxH={'10'} maxW={'60'} w={'60'} justifyContent={'center'}>
             <Switch
@@ -114,11 +128,18 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
             </Text>
           </Box>
         </HStack>
-        <TouchableOpacity style={styles.fabLocation} onPress={handlePost}>
-          <View style={styles.fab}>
-            <Text style={styles.fabTxt}>Agregar Área</Text>
-          </View>
-        </TouchableOpacity>
+        <HStack mt={5} space={5} justifyContent={'center'}>
+          <TouchableOpacity style={styles.fabLocation} onPress={() => navigation.goBack()}>
+            <View style={styles.fab}>
+              <Text style={styles.fabTxt}>Cancelar</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.fabLocation} onPress={handlePost}>
+            <View style={styles.fab}>
+              <Text style={styles.fabTxt}>Agregar Área</Text>
+            </View>
+          </TouchableOpacity>
+        </HStack>
       </Flex>
     </View>
   )
@@ -127,7 +148,7 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
 const styles = StyleSheet.create({
   fab: {
     backgroundColor: '#193250',
-    width: 150,
+    width: 120,
     height: 60,
     borderRadius: 10,
     justifyContent: 'center',
