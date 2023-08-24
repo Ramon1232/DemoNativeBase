@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, FlatList, Input, Text, TextArea, View, Flex, Box, HStack, ScrollView, Spinner, Heading } from 'native-base'
-import { AreaVerScreenRouteProp, MainStackParamList } from '../../types/navigation'
+import { CategoriasVerScreenRouteProp, MainStackParamList } from '../../types/navigation'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
@@ -9,7 +9,7 @@ import ResponsiveHeader from '../../components/ResponsiveHeader';
 import Breadcrumb from '../../components/Breadcrumb';
 
 interface DataItem {
-  areaId: number;
+  categoryId: number;
   main: string;
   second: string;
   thirth: string;
@@ -17,32 +17,32 @@ interface DataItem {
   active: boolean;
 }
 
-const AreaVer = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
+const CategoriasVer = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
   const [data, setData] = useState<DataItem[]>([]);
-  const route = useRoute<AreaVerScreenRouteProp>();
+  const route = useRoute<CategoriasVerScreenRouteProp>();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const onRefresh = () => {
     setRefreshing(true);
-    getAreas();
+    getCategories();
     setRefreshing(false);
   };
 
   useEffect(() => {
-    getAreas();
+    getCategories();
   }, []);
 
-  const editArea = (areaId: number) => {
-    navigation.navigate('AreaEditar', { areaId: areaId });
+  const editCategories = (categoryId: number) => {
+    navigation.navigate('CategoriasEditar', { categoryId: categoryId });
   }
 
-  const getAreas = () => {
+  const getCategories = () => {
     setLoading(true);
-    // axios.get('http://192.168.1.70:3000/areas/' + route.params.areaId)
-    axios.get('http://158.97.121.147:3000/areas/' + route.params.areaId)
+    axios.get('http://158.97.121.147:3000/categories/' + route.params.categoryId)
+    // axios.get('http://159.97.121.147:3000/areas/' + route.params.areaId)
       .then((response) => {
-        setData(response.data.areas);
+        setData(response.data.categories);
       })
       .catch((error) => {
       })
@@ -59,9 +59,9 @@ const AreaVer = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => 
   }
 
   const breadcrumbItems = [
-    { label: 'Áreas', onPress: () => navigation.goBack() },
-    { label: 'Visualizar áreas', onPress: () => getAreas() },
-    { label: 'Editar áreas', onPress: () => navigation.navigate('AreaEditar', { areaId: route.params.areaId }) },
+    { label: 'Categorias', onPress: () => navigation.goBack() },
+    { label: 'Visualizar categoria', onPress: () => getCategories() },
+    { label: 'Editar categoria', onPress: () => navigation.navigate('AreaEditar', { areaId: route.params.categoryId}) },
   ];
 
   const renderDataItem = ({ item }: { item: DataItem }) => (
@@ -72,7 +72,7 @@ const AreaVer = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => 
       }>
       <ResponsiveHeader
         navigation={navigation}
-        title="Visualizar área"
+        title="Visualizar categoria"
         rightContent={<Text>Actualizar</Text>}
       />
       {data.length > 0 && (
@@ -131,7 +131,8 @@ const AreaVer = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => 
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.fabLocation}
-              onPress={() => editArea(item.areaId)}>
+              onPress={() => editCategories(item.categoryId)}
+              >
               <View style={styles.fab}>
                 <Text style={styles.fabTxt}>Editar</Text>
               </View>
@@ -155,7 +156,7 @@ const AreaVer = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => 
         <FlatList
           data={data}
           renderItem={renderDataItem}
-          keyExtractor={(item) => item.areaId.toString()}
+          keyExtractor={(item) => item.categoryId.toString()}
         />
       )}
     </View>
@@ -182,4 +183,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default AreaVer;
+export default CategoriasVer;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, FlatList, Input, Text, TextArea, View, Flex, Box, HStack, AlertDialog, useToast, Spinner, Heading } from 'native-base'
-import { AreaEditarScreenRouteProp, MainStackParamList } from '../../types/navigation'
+import { CategoriasEditarScreenRouteProp, MainStackParamList } from '../../types/navigation'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
@@ -9,7 +9,7 @@ import ResponsiveHeader from '../../components/ResponsiveHeader';
 import Breadcrumb from '../../components/Breadcrumb';
 
 interface DataItem {
-  areaId: number;
+  categoryId: number;
   main: string;
   second: string;
   thirth: string;
@@ -17,9 +17,9 @@ interface DataItem {
   active: boolean;
 }
 
-const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
+const CategoriasEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
   const [data, setData] = useState<DataItem[]>([]);
-  const route = useRoute<AreaEditarScreenRouteProp>();
+  const route = useRoute<CategoriasEditarScreenRouteProp>();
   const [editedData] = useState<DataItem | null>(null);
   const [isOpen, setIsOpen] = React.useState(false);
   const cancelRef = React.useRef(null);
@@ -28,15 +28,15 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getAreas();
+    getCategories();
   }, []);
 
-  const getAreas = () => {
+  const getCategories = () => {
     setLoading(true);
-    // axios.get('http://192.168.1.70:3000/areas/' + route.params.areaId)
-    axios.get('http://158.97.121.147:3000/areas/' + route.params.areaId)
+    axios.get('http://158.97.121.147:3000/categories/' + route.params.categoryId)
+    // axios.get('http://159.97.121.147:3000/areas/' + route.params.areaId)
       .then((response) => {
-        setData(response.data.areas);
+        setData(response.data.categories);
       })
       .catch((error) => {
       })
@@ -53,9 +53,9 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
     }
   }
 
-  const deleteAreas = (areaId: number) => {
-    // axios.delete('http://192.168.1.70:3000/areas/' + route.params.areaId)
-    axios.delete('http://158.97.121.147:3000/areas/' + route.params.areaId)
+  const deleteCategories = (areaId: number) => {
+    axios.delete('http://158.97.121.147:3000/categories/' + route.params.categoryId)
+    // axios.delete('http://159.97.121.147:3000/areas/' + route.params.areaId)
       .then(response => {
         navigation.goBack();
         navigation.goBack();
@@ -68,14 +68,14 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
       });
   }
 
-  const updateAreas = (item: DataItem) => {
-    // axios.patch('http://192.168.1.70:3000/areas/' + route.params.areaId, {
-    axios.patch('http:/158.97.121.147/:3000/areas/' + route.params.areaId, {
-      main: item.main,
-      second: item.second,
-      thirth: item.thirth,
-      description: item.description,
-      active: item.active,
+  const updateCategories = (item: DataItem) => {
+    axios.patch('http://158.97.121.147:3000/categories/' + route.params.categoryId, {
+      // axios.patch('http:/159.97.121.147/:3000/areas/' + route.params.areaId, {
+        main: item.main,
+        second: item.second,
+        thirth: item.thirth,
+        description: item.description,
+        active: item.active,
     })
       .then(response => {
         toast.show({
@@ -86,7 +86,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
           backgroundColor: '#193250',
           duration: 1500,
         })
-        getAreas();
+        getCategories();
         navigation.goBack();
       })
       .catch(error => {
@@ -98,22 +98,22 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
   }
 
   const breadcrumbItems = [
-    { label: 'Áreas', onPress: () => navigation.goBack() },
-    { label: 'Visualizar áreas', onPress: () => navigation.goBack() },
-    { label: 'Editar áreas', onPress: () => getAreas() },
+    { label: 'Categorias', onPress: () => navigation.goBack() },
+    { label: 'Visualizar categoria', onPress: () => navigation.goBack() },
+    { label: 'Editar categoria', onPress: () => getCategories() },
   ];
 
   const renderDataItem = ({ item }: { item: DataItem }) => (
     <View flex={1}>
       <ResponsiveHeader
         navigation={navigation}
-        title="Editar área"
+        title="Editar categoria"
         rightContent={<Text></Text>}
       />
       {data.length > 0 && (
         <Flex direction="column" m={5}>
           <Breadcrumb items={breadcrumbItems} />
-          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Área principal:</Text>
+          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Categoria principal:</Text>
           <Input
             mt={2}
             value={item.main}
@@ -125,7 +125,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
               setData([{ ...item, main: text }]);
             }}
           />
-          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Área secundaria:</Text>
+          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Categoria secundaria:</Text>
           <Input
             mt={2}
             value={item.second}
@@ -137,7 +137,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
               setData([{ ...item, second: text }]);
             }}
           />
-          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Área terciaria:</Text>
+          <Text fontSize={'md'} fontWeight={'light'} mt={5}>Categoria terciaria:</Text>
           <Input
             mt={2}
             value={item.thirth}
@@ -158,7 +158,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
               setData([{ ...item, description: text }]);
             }}
             autoCompleteType={undefined} />
-          <Text mt={4} fontSize={'md'} fontWeight={'light'}>Cambiar estado del área:</Text>
+          <Text mt={4} fontSize={'md'} fontWeight={'light'}>Cambiar estado:</Text>
           <HStack space={3} justifyContent='flex-start'>
             <Box mt={5} ml={-4} maxH={'10'} maxW={'60'} w={'60'} justifyContent={'center'}>
               <Switch
@@ -190,7 +190,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
                     <Button variant="unstyled" colorScheme="coolGray" onPress={onClose} ref={cancelRef}>
                       Cancelar
                     </Button>
-                    <Button colorScheme="danger" onPress={() => deleteAreas(item.areaId)}>
+                    <Button colorScheme="danger" onPress={() => deleteCategories(item.categoryId)}>
                       Aceptar
                     </Button>
                   </Button.Group>
@@ -199,7 +199,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
             </AlertDialog>
             <TouchableOpacity
               style={styles.fabLocation}
-              onPress={() => updateAreas(editedData || item)}>
+              onPress={() => updateCategories(editedData || item)}>
               <View style={styles.fab}>
                 <Text style={styles.fabTxt}>Ok</Text>
               </View>
@@ -224,7 +224,7 @@ const AreaEditar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) 
         <FlatList
           data={data}
           renderItem={renderDataItem}
-          keyExtractor={(item) => item.areaId.toString()}
+          keyExtractor={(item) => item.categoryId.toString()}
         />
       )}
     </View>
@@ -250,4 +250,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default AreaEditar;
+export default CategoriasEditar;

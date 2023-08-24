@@ -6,6 +6,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../types/navigation';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MainHeader from '../../components/MainHeader';
 
 interface DataItem {
     areaId: number;
@@ -38,7 +40,8 @@ const Area = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
             <View style={styles.row}>
                 <Text style={[styles.cell, styles.idCell]}>{item.areaId}</Text>
                 <Text style={[styles.cell, styles.mainCell]}>{[item.main, item.second, item.thirth].join(" / ")}</Text>
-                <Text style={[styles.cell, styles.stateCell]}>{item.active ? 'Activo' : 'Inactivo'}</Text>
+                <MaterialIcons style={[styles.checkCell, styles.stateCell]} name={item.active ? 'check-box' : 'check-box-outline-blank'} size={24} color={'black'}/>
+                {/* <Text style={[styles.cell, styles.stateCell]}>{item.active ? 'Activo' : 'Inactivo'}</Text> */}
             </View>
         </TouchableOpacity>
     );
@@ -49,8 +52,8 @@ const Area = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
     );
 
     const getAreas = () => {
-        axios.get('http://192.168.1.70:3000/areas')
-        // axios.get('http://159.97.121.147:3000/areas/')
+        // axios.get('http://192.168.1.70:3000/areas')
+        axios.get('http://158.97.121.147:3000/areas/')
             .then((response) => {
                 setData(response.data.areas);
                 setError(false);
@@ -66,15 +69,20 @@ const Area = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
 
     return (
         <View flex={1} >
+            <MainHeader
+                navigation={navigation}
+                title="Áreas"
+                onRefresh={getAreas}
+            />
             <Flex direction='column' m={5}>
-                <Text mb={2} fontWeight={300}>Buscar por principal*</Text>
+                <Text mb={2} fontWeight={300}>Buscar por principal</Text>
                 <Input size={'lg'}
                     variant={'outline'}
                     placeholder='Ej. "Coordinación"'
                     fontWeight={'light'}
                     value={searchText}
                     onChangeText={text => setSearchText(text)} />
-                <Text mt={2} mb={2} fontWeight={300}>Buscar por estado*</Text>
+                <Text mt={2} mb={2} fontWeight={300}>Buscar por estado</Text>
                 <Box>
                     <Select size={'lg'}
                         fontWeight={'light'}
@@ -83,7 +91,7 @@ const Area = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
                         accessibilityLabel="Choose Active"
                         placeholder="Activo"
                         _selectedItem={{
-                            bg: "teal.600",
+                            bg: "primary.700",
                             endIcon: <CheckIcon size="5" />
                         }} mt={1} onValueChange={itemValue => setActive(itemValue)}>
                         <Select.Item label="Seleccionar" value='' />
@@ -92,30 +100,32 @@ const Area = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
                     </Select>
                 </Box>
             </Flex>
-            <View style={styles.headerRow}>
-                <Text style={[styles.headerCell, styles.idCell]}>Id</Text>
-                <Text style={[styles.headerCell, styles.mainCell]}>Áreas</Text>
-                <Text style={[styles.headerCell, styles.stateCell]}>Estado</Text>
-            </View>
-            {error ? (
-                <View style={styles.noDataContainer}>
-                    <Text style={styles.noDataText}>No hay conexión a internet.</Text>
-                    <Feather name='wifi-off' size={28} color={'black'} style={styles.noDataIcon} />
+            <Box flex={1} maxH={'65%'}>
+                <View style={styles.headerRow}>
+                    <Text style={[styles.headerCell, styles.idCell]}>Id</Text>
+                    <Text style={[styles.headerCell, styles.mainCell]}>Áreas</Text>
+                    <Text style={[styles.headerCell, styles.stateCell]}>Estado</Text>
                 </View>
-            ) : data.length > 0 ? (
-                <FlatList
-                    data={filteredData}
-                    renderItem={renderRow}
-                    keyExtractor={(item) => item.areaId.toString()}
-                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                />
-            ) : (
-                <View>
-                    <Text style={styles.noDataText}>No hay datos disponibles, {'\n'}
-                    </Text>
-                    <Feather name='frown' size={28} color={'black'} style={styles.noDataIcon} />
-                </View>
-            )}
+                {error ? (
+                    <View style={styles.noDataContainer}>
+                        <Text style={styles.noDataText}>No hay conexión a internet.</Text>
+                        <Feather name='wifi-off' size={28} color={'black'} style={styles.noDataIcon} />
+                    </View>
+                ) : data.length > 0 ? (
+                    <FlatList
+                        data={filteredData}
+                        renderItem={renderRow}
+                        keyExtractor={(item) => item.areaId.toString()}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    />
+                ) : (
+                    <View>
+                        <Text style={styles.noDataText}>No hay datos disponibles, {'\n'}
+                        </Text>
+                        <Feather name='frown' size={28} color={'black'} style={styles.noDataIcon} />
+                    </View>
+                )}
+            </Box>
             <TouchableOpacity
                 style={styles.fabLocation}
                 onPress={() => navigation.navigate('AreaAgregar')}>
@@ -161,6 +171,10 @@ const styles = StyleSheet.create({
     mainCell: {
 
     },
+    checkCell: {
+        flex: 1,
+        marginBottom: 10,
+    },
     stateCell: {
         flex: 0.4,
         textAlign: 'center'
@@ -177,8 +191,8 @@ const styles = StyleSheet.create({
     },
     fabLocation: {
         position: 'absolute',
-        bottom: 40,
-        right: 30
+        bottom: 10,
+        right: 15
     },
     noDataContainer: {
         flex: 1,

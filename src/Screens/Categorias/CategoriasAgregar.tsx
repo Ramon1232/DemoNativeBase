@@ -15,7 +15,7 @@ interface PostData {
   active: boolean;
 }
 
-const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
+const CategoriasAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>) => {
   const [main, setMain] = useState('');
   const [second, setSecond] = useState('');
   const [thirth, setThirth] = useState('');
@@ -26,7 +26,7 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
     setActive(previousState => !previousState);
   };
 
-  const postAreas = () => {
+  const postCategories = () => {
     const postData: PostData = {
       main,
       second,
@@ -34,10 +34,10 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
       description,
       active,
     };
-    axios.post('http://158.97.121.147:3000/areas/', postData)
+    axios.post('http://158.97.121.147:3000/categories/', postData)
       .then((response) => {
         console.log('Área creada exitosamente:', response.data);
-        navigation.goBack(); // Vuelve a la pantalla anterior
+        navigation.goBack();
       })
       .catch((error) => {
         console.error('Error al crear el área:', error);
@@ -49,20 +49,20 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
   }
 
   const breadcrumbItems = [
-    { label: 'Áreas', onPress: () => navigation.goBack() },
-    { label: 'Agregar áreas', onPress: () => navigation.navigate('AreaAgregar') }
+    { label: 'Categorias', onPress: () => navigation.goBack() },
+    { label: 'Agregar categorias', onPress: () => navigation.navigate('CategoriasAgregar')}
   ];
 
   return (
     <View flex={1}>
       <ResponsiveHeader
         navigation={navigation}
-        title="Agregar áreas"
+        title="Agregar categorias"
         rightContent={<Text>Actualizar</Text>}
       />
       <Flex direction='column' m={5}>
         <Breadcrumb items={breadcrumbItems} />
-        <Text mt={4} mb={2} fontWeight={300}>Área principal*</Text>
+        <Text mt={4} mb={2} fontWeight={300}>Categoria principal*</Text>
         <Input
           size={'lg'}
           fontWeight={'light'}
@@ -71,7 +71,7 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
           value={main}
           onChangeText={setMain}
         />
-        <Text mt={4} mb={2} fontWeight={300}>Área secundaria</Text>
+        <Text mt={4} mb={2} fontWeight={300}>Categoria secundaria</Text>
         <Input
           size={'lg'}
           fontWeight={'light'}
@@ -80,7 +80,7 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
           value={second}
           onChangeText={setSecond}
         />
-        <Text mt={4} mb={2} fontWeight={300}>Área Terciaria</Text>
+        <Text mt={4} mb={2} fontWeight={300}>Categoria Terciaria</Text>
         <Input
           size={'lg'}
           fontWeight={'light'}
@@ -92,7 +92,7 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
         <Text mt={4}
           mb={2}
           fontWeight={300}>
-          Descripción del área
+          Descripción de la categoria
         </Text>
         <TextArea
           size={'lg'}
@@ -103,7 +103,7 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
           autoCompleteType={undefined}
         />
         <Text mt={4} mb={1}
-          fontWeight={300}>Estado del área</Text>
+          fontWeight={300}>Estado de la categoria</Text>
         <HStack space={3} justifyContent='flex-start'>
           <Box mt={5} ml={-4} maxH={'10'} maxW={'60'} w={'60'} justifyContent={'center'}>
             <Switch
@@ -126,9 +126,9 @@ const AreaAgregar = ({ navigation }: NativeStackScreenProps<MainStackParamList>)
               <Text style={styles.fabTxt}>Cancelar</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.fabLocation} onPress={postAreas}>
+          <TouchableOpacity style={styles.fabLocation} onPress={postCategories}>
             <View style={styles.fab}>
-              <Text style={styles.fabTxt}>Agregar Área</Text>
+              <Text style={styles.fabTxt}>Agregar</Text>
             </View>
           </TouchableOpacity>
         </HStack>
@@ -157,4 +157,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AreaAgregar;
+export default CategoriasAgregar;

@@ -7,10 +7,10 @@ import Home from '../Screens/Principal/Home';
 import Asignaciones from '../Screens/Asignaciones/Asignaciones';
 import Compras from '../Screens/Compras/Compras';
 import Proveedores from '../Screens/Proveedores/Proveedores';
-import mainCliente from '../Screens/ClienteInterno/mainCliente';
 import Proyectos from '../Screens/Proyectos/Proyectos';
 import Ubicaciones from '../Screens/Ubicaciones/Ubicaciones';
 import Categorias from '../Screens/Categorias/Categorias';
+import ClienteInterno from '../Screens/ClienteInterno/ClienteInterno';
 
 
 const Drawer = () =>{
@@ -101,7 +101,7 @@ const Drawer = () =>{
           color: '#FFFF'
         },
       }} />
-      <Drawer.Screen name="Cliente interno" component={mainCliente}
+      <Drawer.Screen name="Cliente interno" component={ClienteInterno}
       options={{
         drawerLabel: 'Cliente interno',
         drawerLabelStyle: {
@@ -117,60 +117,38 @@ const Drawer = () =>{
       }} />
       <Drawer.Screen name="Proyectos" component={Proyectos}
       options={{
+        headerShown: false,
         drawerLabel: 'Proyectos',
         drawerLabelStyle: {
           color: '#FFFF',
           fontWeight: '300',
         },
-        headerStyle: {
-          backgroundColor: '#193250'
-        },
-        headerTitleStyle: {
-          color: '#FFFF'
-        },
       }} />
       <Drawer.Screen name="Ubicaciones" component={Ubicaciones}
       options={{
+        headerShown: false,
         drawerLabel: 'Ubicaciones',
         drawerLabelStyle: {
           color: '#FFFF',
           fontWeight: '300',
         },
-        headerStyle: {
-          backgroundColor: '#193250'
-        },
-        headerTitleStyle: {
-          color: '#FFFF'
-        },
       }} />
       <Drawer.Screen name="Áreas" component={Area}
       options={{
+        headerShown: false,
         drawerLabel: 'Áreas',
         drawerLabelStyle: {
           color: '#FFFF',
           fontWeight: '300',
-        },
-        headerStyle: {
-          backgroundColor: '#193250'
-        },
-        headerTitleStyle: {
-          color: '#FFFF',
-          fontSize: 18,
-          fontWeight: '300',
-        },
+        }
       }} />
       <Drawer.Screen name="Categorias" component={Categorias}
       options={{
+        headerShown: false,
         drawerLabel: 'Categorias',
         drawerLabelStyle: {
           color: '#FFFF',
           fontWeight: '300',
-        },
-        headerStyle: {
-          backgroundColor: '#193250',
-        },
-        headerTitleStyle: {
-          color: '#FFFF'
         },
       }} />
     </Drawer.Navigator>
